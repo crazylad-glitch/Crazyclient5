@@ -14,10 +14,17 @@ jobs:
       - name: Unzip source
         run: unzip CrazyClient-source-v1-1*.zip
 
-      - name: Find and move to project root
+      - name: Fetch missing submodules
         run: |
-          cd $(find . -name "gradlew" -not -path "./.git/*" | head -1 | xargs dirname)
-          echo "PROJECT_DIR=$(pwd)" >> $GITHUB_ENV
+          cd CrazyClient-source
+          git init
+          git submodule add https://github.com/microsoft/libHttpClient.git libHttpClient
+          git submodule update --init --recursive
+        continue-on-error: true
+
+      - name: Find project root
+        run: |
+          echo "PROJECT_DIR=$(find . -name "gradlew" -not -path "./.git/*" | head -1 | xargs dirname)" >> $GITHUB_ENV
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
